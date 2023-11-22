@@ -1,0 +1,8 @@
+package com.example.bod.repository;
+
+import com.example.bod.entity.Board;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+
+public interface BoardRepository extends JpaRepository<Board,Long> {
+}

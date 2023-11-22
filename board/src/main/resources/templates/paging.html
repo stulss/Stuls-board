@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>paging</title>
+</head>
+<body>
+
+<button onclick="create()">글쓰기</button>
+<button onclick="home()">홈으로</button>
+
+<table>
+    <tr th:each="board: ${boardList}">
+        <td th:text="${board.getId()}"></td>
+        <td><a th:href="@{'/board/' + ${board.getId()} + '?page=' + (${boardList.number} + 1)}" th:text="${board.getTitle()}"></a></td>
+        <td th:text="${#temporals.format(board.getCreateTime(), 'yyyy-MM-dd HH:mm:ss')}"></td>
+        <td><button onclick="edit(${board.getId()})">수정</button></td>
+    </tr>
+</table>
+
+<a th:href="@{/paging(page=1)}">처음</a>
+<a th:href="${boardList.first} ? '#' : @{/paging(page=${boardList.number})}">이전</a>
+
+<span th:each="page: ${#numbers.sequence(startPage, endPage)}">
+    <span th:if="${page == boardList.number + 1}" th:text="${page}"></span>
+    <span th:unless="${page == boardList.number + 1}">
+        <a th:href="@{/paging(page=${page})}" th:text="${page}"></a>
+    </span>
+</span>
+
+<a th:href="${boardList.last} ? '#' : @{/paging(page=${boardList.number + 2})}">다음</a>
+<a th:href="@{/paging(page=${boardList.totalPages})}">마지막</a>
+
+<script>
+    function create() {
+        location.href = "/createBoard";
+    }
+    function home() {
+        location.href = "/";
+    }
+    function edit(id) {
+        location.href = "/board/" + id + "/edit";
+    }
+</script>
+
+</body>
+</html>
