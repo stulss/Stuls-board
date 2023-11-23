@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Board</title>
+</head>
+<body>
+    <form action="/board/save" method="post" enctype="multipart/form-data">
+        <label for="title">게시글 생성</label> <br><br>
+
+        name:<input type="text" name="username">
+        title:<input type="text" id="title" name="title" /><br>
+        <label for="content">Content:</label>
+        <textarea id="content" name="content" cols="30" rows="10"></textarea><br><br>
+        <input type="file" name="file"><br><br>
+        <input type="submit" value="글작성">
+    </form>
+</body>
+</html>

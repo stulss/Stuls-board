@@ -1,9 +1,8 @@
 package com.example.bod.entity;
 
+import com.example.bod.dto.BoardDTO;
 import lombok.*;
-
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Entity
@@ -44,5 +43,9 @@ public class Board {
         this.updateTime = updateTime;
     }
 
-
+    public void updateFromDTO(BoardDTO boardDTO){
+        // 모든 변경 사항을 셋팅.
+        this.title = boardDTO.getTitle();
+        this.content = boardDTO.getContent();
+    }
 }

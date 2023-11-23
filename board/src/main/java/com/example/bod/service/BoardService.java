@@ -1,10 +1,8 @@
 package com.example.bod.service;
 
-import com.example.bod.dto.BoardRequestDTO;
+import com.example.bod.dto.BoardDTO;
 import com.example.bod.entity.Board;
 import com.example.bod.repository.BoardRepository;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,8 +12,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
 public class BoardService {
@@ -27,7 +27,7 @@ public class BoardService {
        Pageable = 수량을 사용하기 위한 정보
        int page = pageable.getPageNumber() - 1; : 페이지를 1부터 시작하는 설정
     */
-    public Page<BoardRequestDTO> paging(Pageable pageable){
+    public Page<BoardDTO> paging(Pageable pageable){
         // 페이지 시작 번호 셋팅
         int page = pageable.getPageNumber() - 1;
         // 페이지에 포함될 게시물 개수
@@ -38,17 +38,18 @@ public class BoardService {
                 PageRequest.of(page,size));
 
         // db에 있는 전체 데이터를 불러오고
-        return boards.map(board -> new BoardRequestDTO(
+        return boards.map(board -> new BoardDTO(
                 board.getId(),
                 board.getUsername(),
                 board.getTitle(),
                 board.getContent(),
-                board.getCreateTime()));
+                board.getCreateTime(),
+                board.getUpdateTime()));
     }
 
 
     @Transactional
-    public void save(BoardRequestDTO boardDTO) {
+    public void save(BoardDTO boardDTO) {
         try {
              Board board = boardDTO.toEntity();
 
@@ -64,17 +65,29 @@ public class BoardService {
     }
 
     @Transactional
-    public void update(BoardRequestDTO boardDTO) {
-        try {
-            Board board = boardRepository.findById(boardDTO.getId())
-                    .orElseThrow(() -> new IllegalArgumentException("해당 게시물이 존재하지 않습니다. ID: " + boardDTO.getId()));
+    public void update(BoardDTO boardDTO) {
 
-            boardRepository.save(boardDTO.toUpdate());
+        Optional<Board> boardOptional = boardRepository.findById(boardDTO.getId());
+        Board board = boardOptional.get();
 
-            logger.info("게시물이 수정되었습니다. ID: {}", board.getId());
-        } catch (Exception e) {
-            logger.error("게시물 수정 중 오류가 발생했습니다.", e);
-            // 예외 처리
-        }
+        board.updateFromDTO(boardDTO);
+
+        boardRepository.save(board);
+    }
+    @Transactional
+    public void deleteBoard(Long id){
+        boardRepository.deleteById(id);
+        logger.info("게시물이 삭제되었습니다. ID: "+id);
+    }
+
+    public List<Board> getAllBoards() {
+        return boardRepository.findAll();
+    }
+
+    public BoardDTO findById(Long id) {
+        //if(boordRepository.findById(id).isPresent());... 예외처리 생략
+        Board board = boardRepository.findById(id).get();
+
+        return BoardDTO.toBoardDTO(board);
     }
 }

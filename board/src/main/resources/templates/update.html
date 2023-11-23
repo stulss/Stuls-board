@@ -1,10 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>update</title>
+    <title>Edit Board</title>
 </head>
 <body>
-
+<form action="/board/update/" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="id" th:value="${board.getId()}">
+    title:<input type="text" id="title" name="title" /><br>
+    Content:<textarea id="content" name="content" cols="30" rows="10"></textarea><br><br>
+    file:<input type="file" name="file"><br><br>
+    <input type="submit" value="글수정">
+</form>
+<a href="/">취소</a>
 </body>
 </html>

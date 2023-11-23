@@ -1,6 +1,7 @@
 package com.example.bod.controller;
 
-import com.example.bod.dto.BoardRequestDTO;
+import com.example.bod.dto.BoardDTO;
+import com.example.bod.entity.Board;
 import com.example.bod.repository.BoardRepository;
 import com.example.bod.service.BoardService;
 import lombok.RequiredArgsConstructor;
@@ -12,54 +13,88 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequiredArgsConstructor
+@RequestMapping("/board")
 public class BoardController {
 
     public final BoardService boardService;
 
-    @GetMapping("/")
-    public String home(){
-        return "index";
-    }
 
-    @GetMapping("/createBoard")
+    @GetMapping("/create")
     public String createBoard(){
-        return "createBoard";
+        return "create";
     }
 
-    @PostMapping("/save")
-    public String save(@ModelAttribute BoardRequestDTO boardDTO){
-        System.out.println(boardDTO.getUsername());
-        System.out.println(boardDTO.getTitle()+" : "+boardDTO.getContent());
+    @GetMapping(value = {"/paging","/"})
+    public String paging(@PageableDefault(page = 1) Pageable pageable, Model model){
 
-        boardDTO.setCreateTime(LocalDateTime.now());
-        boardService.save(boardDTO);
-        return "redirect:";
-    }
-
-    @GetMapping("/paging")
-    public String paging(@PageableDefault(page = 1) Pageable pageable, Model modal){
-
-        Page<BoardRequestDTO> boards = boardService.paging(pageable);
+        Page<BoardDTO> boards = boardService.paging(pageable);
 
         int blockLimit = 3;
         int startPage =(int) (Math.ceil((double) pageable.getPageNumber()/blockLimit)-1)*blockLimit+1;
         int endPage = ((startPage+blockLimit -1) < boards.getTotalPages()) ? (startPage+blockLimit -1) : boards.getTotalPages();
 
-        modal.addAttribute("boardList",boards);
-        modal.addAttribute("startPage",startPage);
-        modal.addAttribute("endPage",endPage);
+        model.addAttribute("boardList",boards);
+        model.addAttribute("startPage",startPage);
+        model.addAttribute("endPage",endPage);
 
         return "paging";
     }
 
+    @GetMapping("/{id}")
+    public String detail(@PathVariable Long id, Model model, @PageableDefault(page = 1) Pageable pageable){
 
-    @PutMapping("/{id}")
-    public String update(@PathVariable Long id, @ModelAttribute BoardRequestDTO boardDTO){
-        boardDTO.setId(id);
-        boardService.update(boardDTO);
-        return "redirect:/paging";
+        BoardDTO boardDTO = boardService.findById(id);
+
+        model.addAttribute("board",boardDTO);
+        model.addAttribute("page", pageable.getPageNumber());
+
+
+        /*System.out.println(board.get().getId());
+        System.out.println(board.get().getTitle());
+        System.out.println(board.get().getUsername());
+        System.out.println(board.get().getContent());
+        System.out.println(board.get().getCreateTime());
+        System.out.println(board.get().getUpdateTime());*/
+        return "Detail";
     }
+
+    @PostMapping("/save")
+    public String save(@ModelAttribute BoardDTO boardDTO){
+        System.out.println(boardDTO.getUsername());
+        System.out.println(boardDTO.getTitle()+" : "+boardDTO.getContent());
+
+        boardDTO.setCreateTime(LocalDateTime.now());
+        boardService.save(boardDTO);
+        return "redirect:/board/";
+    }
+
+
+    @GetMapping("/update/{id}")
+    public String updateForm(@PathVariable Long id, Model model){
+
+        BoardDTO boardDTO = boardService.findById(id);
+        model.addAttribute("board", boardDTO);
+
+        return "update";
+    }
+
+    @PostMapping("/update")
+    public String update(@ModelAttribute BoardDTO boardDTO){
+
+        boardService.update(boardDTO);
+
+        return "redirect:/board/";
+    }
+
+    @GetMapping("/delete/id:{id}")
+    public String deleteBoard(@PathVariable Long id){
+        boardService.deleteBoard(id);
+        return "redirect:/board/";
+    }
+
 }
