@@ -20,7 +20,7 @@ public class BoardDTO {
 
     private String title;
 
-    private String content;
+    private String contents;
 
     private LocalDateTime createTime;
 
@@ -29,9 +29,9 @@ public class BoardDTO {
 
     public Board toEntity(){
         return Board.builder()
-                .username(username)
+                .userName(username)
                 .title(title)
-                .content(content)
+                .contents(contents)
                 .createTime(createTime)
                 .updateTime(LocalDateTime.now())
                 .build();
@@ -41,18 +41,12 @@ public class BoardDTO {
         return new BoardDTO(
                 board.getId(),
                 board.getTitle(),
-                board.getContent(),
-                board.getUsername(),
+                board.getContents(),
+                board.getUserName(),
                 board.getCreateTime(),
                 board.getUpdateTime() );
     }
 
 
-    public Board toUpdate(){
-        return Board.builder()
-                .title(title)
-                .content(content)
-                .updateTime(updateTime)
-                .build();
-    }
+
 }

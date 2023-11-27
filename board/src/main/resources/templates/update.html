@@ -8,8 +8,8 @@
 <form action="/board/update/" method="post" enctype="multipart/form-data">
     <input type="hidden" name="id" th:value="${board.getId()}">
     title:<input type="text" id="title" name="title" /><br>
-    Content:<textarea id="content" name="content" cols="30" rows="10"></textarea><br><br>
-    file:<input type="file" name="file"><br><br>
+    Content:<textarea id="content" name="contents" cols="30" rows="10"></textarea><br><br>
+    file:<input type="file" name="files" multiple><br><br>
     <input type="submit" value="글수정">
 </form>
 <a href="/">취소</a>

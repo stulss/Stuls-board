@@ -4,48 +4,63 @@ import com.example.bod.dto.BoardDTO;
 import lombok.*;
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
 @NoArgsConstructor
 public class Board {
 
+    // ** pk
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
-    // 작성자 이름
-    @Column(nullable = false)
-    private String username;
+    // ** 작성자 이름
+    @Column(length = 50)
+    private String userName;
 
-    // 게시물제목
-    @Column(nullable = false)
+    // ** 게시물 제목
+    @Column(length = 50)
     private String title;
 
-    // 게시물내용
-    @Column(nullable = false)
-    private String content;
+    // ** 내용
+    @Column(length = 50)
+    private String contents;
 
-    //  최초 작성 시간
-
+    // ** 최초 작성 시간
     private LocalDateTime createTime;
-    // 최종 작성 시간
 
+    // ** 최근 수정 시간
     private LocalDateTime updateTime;
 
+    // ** 1:다
+    // ** 소유 & 비소유
+    // ** cascade = CascadeType.REMOVE : 게시물이 삭제되면 댓글을 자동으로 지워준다.
+    // ** orphanRemoval = true : 연결 관계가 끊어지면 삭제.
+    // ** fetch = FetchType.LAZY : 지연로딩 (성능 최적화.)
+    @OneToMany(mappedBy = "board", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Comment> comment =  new ArrayList<>();
+
+
+    @OneToMany(mappedBy = "board", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<File> files =  new ArrayList<>();
+
     @Builder
-    public Board(Long id, String username, String title, String content, LocalDateTime createTime, LocalDateTime updateTime) {
-        Id = id;
-        this.username = username;
+    public Board(Long id, String userName, String title, String contents, LocalDateTime createTime, LocalDateTime updateTime) {
+        this.id = id;
+        this.userName = userName;
         this.title = title;
-        this.content = content;
+        this.contents = contents;
         this.createTime = createTime;
         this.updateTime = updateTime;
     }
 
     public void updateFromDTO(BoardDTO boardDTO){
-        // 모든 변경 사항을 셋팅.
+
+        // ** 모든 변경 사항을 셋팅.
         this.title = boardDTO.getTitle();
-        this.content = boardDTO.getContent();
+        this.contents = boardDTO.getContents();
     }
 }
