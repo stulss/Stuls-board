@@ -3,6 +3,7 @@ package com.example.bod.controller;
 import com.example.bod.dto.CommentDTO;
 import com.example.bod.entity.Comment;
 import com.example.bod.service.CommentService;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +17,7 @@ import java.util.List;
 
 
 @Controller
-@RequiredArgsConstructor
+@AllArgsConstructor
 @RequestMapping("/comment")
 public class CommentController {
 
