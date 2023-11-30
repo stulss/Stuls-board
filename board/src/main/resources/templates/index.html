@@ -13,15 +13,19 @@
         .header {
             text-align: center;
             padding: 50px 0;
+            background-image: url('../assets/img/home-bg.jpg'); /* 이미지 URL을 적용해주세요 */
+            background-size: cover;
+            background-position: center;
+            color: #fff;
         }
         .header h1 {
             font-size: 2.5em;
             font-weight: 700;
-            color: #333;
+            color: #fff;
         }
         .header p {
             font-size: 1.2em;
-            color: #6c757d;
+            color: #fff;
         }
         .buttons {
             text-align: center;
@@ -51,41 +55,77 @@
         .btn-secondary {
             background-color: #6c757d;
             border-color: #6c757d;
+            font-size: 0.7rem;
+            padding: 0.2em 0.5em;
         }
         .btn-secondary:hover {
             background-color: #5a6268;
             border-color: #545b62;
         }
+        .recent-posts {
+            display: inline-block;
+            vertical-align: top;
+            margin-left: 50px;
+        }
+        .recent-posts h2 {
+            font-size: 2em;
+            font-weight: 700;
+            color: #333;
+        }
+        .recent-posts table {
+            margin-top: 20px;
+        }
+        .recent-posts td {
+            font-size: 1.2em;
+            color: #333;
+            padding: 5px;
+        }
+        .buttons .btn {
+            margin-right: 10px;
+        }
     </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-light">
-    <a class="navbar-brand" href="#">My Blog</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ml-auto">
-            <li class="nav-item active">
-                <a class="nav-link" href="#">Home</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/board/paging">Posts</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/board/create">Write</a>
-            </li>
-        </ul>
+<nav class="navbar navbar-expand-lg navbar-light" id="mainNav">
+    <div class="container px-4 px-lg-5">
+        <a class="navbar-brand" href="index.html">stuls Blog</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+            메뉴
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav ms-auto py-4 py-lg-0">
+                <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="index.html">홈페이지</a></li>
+                <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="about.html">stuls소개</a></li>
+                <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="post.html">게시글</a></li>
+                <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="contact.html">연결</a></li>
+            </ul>
+        </div>
     </div>
 </nav>
+
 <div class="container">
     <div class="header">
         <h1>Welcome to My Personal Blog</h1>
         <p>A place to share your thoughts and ideas.</p>
     </div>
     <div class="buttons">
-        <button onclick="create()" class="btn btn-primary btn-lg mr-2">글쓰기</button>
-        <button onclick="paging()" class="btn btn-secondary btn-lg">목록</button>
+        <div class="d-inline-block">
+            <button onclick="create()" class="btn btn-primary btn-lg">글쓰기</button>
+        </div>
+    </div>
+    <div class="recent-posts">
+        <h2>Recent Posts
+            <button onclick="paging()" class="btn btn-secondary btn-lg">목록</button></h2>
+
+        <table>
+            <tbody th:each="board: ${boardList}">
+            <tr>
+                <td th:text="${board.getId}"></td>
+                <td><a th:href="@{${board.getId}|(page = ${boardList.number + 1})}" style="font-size: 1.5em; color: #333; font-weight: bold;" th:text="${board.getTitle()}"></a></td>
+            </tr>
+            </tbody>
+        </table>
     </div>
 </div>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>

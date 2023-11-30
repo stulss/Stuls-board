@@ -1,8 +1,9 @@
 package com.example.bod.service;
 
 import com.example.bod.dto.BoardDTO;
+import com.example.bod.dto.FileDTO;
 import com.example.bod.entity.Board;
-import com.example.bod.entity.File;
+import com.example.bod.entity.BoardFile;
 import com.example.bod.repository.BoardRepository;
 import com.example.bod.repository.FileRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -48,10 +50,9 @@ public class BoardService {
         return boards.map(board -> new BoardDTO(
                 board.getId(),
                 board.getTitle(),
-                board.getUserName(),
                 board.getContents(),
                 board.getCreateTime(),
-                board.getUpdateTime() ));
+                board.getUpdateTime()));
     }
 
     public BoardDTO findById(Long id) {
@@ -63,15 +64,88 @@ public class BoardService {
 
     @Transactional
     public void save(BoardDTO dto, MultipartFile[] files) throws IOException {
-        //boardRepository.save(dto.toEntity());
+        // 게시글 저장
+        Board board = boardRepository.save(dto.toEntity());
 
-        // ** 파일 정보 저장.
-        for(MultipartFile file : files) {
+        // 파일 정보 저장
+        for (MultipartFile file : files) {
+            if (!file.isEmpty()) {
+                // 파일 경로 생성
+                Path uploadPath = Paths.get(filePath);
+                if (!Files.exists(uploadPath)) {
+                    Files.createDirectories(uploadPath);
+                }
 
+                // 파일명 추출
+                String originalFileName = file.getOriginalFilename();
+
+                // 파일 고유 식별자 생성
+                String uuid = UUID.randomUUID().toString();
+
+                // 파일 저장 경로 지정
+                String path = filePath + uuid + originalFileName;
+
+                // 파일 저장
+                file.transferTo(new java.io.File(path));
+
+                // 파일 엔티티 생성 및 저장
+                BoardFile boardFile = BoardFile.builder()
+                        .filePath(filePath)
+                        .fileName(originalFileName)
+                        .uuid(uuid)
+                        .fileType(file.getContentType())
+                        .fileSize(file.getSize())
+                        .board(board)
+                        .build();
+                fileRepository.save(boardFile);
+            }
+        }
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        boardRepository.deleteById(id);
+    }
+
+    @Transactional
+    public void update(BoardDTO boardDTO, MultipartFile[] files) throws IOException {
+        Optional<Board> boardOptional = boardRepository.findById(boardDTO.getId());
+
+        //if(boardOptional.isPresent()) ... 예외처리 생략
+        Board board = boardOptional.get();
+
+        // 파일 삭제
+        List<BoardFile> existingFiles = fileRepository.findByBoardId(board.getId());
+        for (BoardFile existingFile : existingFiles) {
+            deleteFile(existingFile);
+        }
+
+        // 파일 저장
+        for (MultipartFile file : files) {
+            uploadFile(file, board);
+        }
+
+        // 게시물 정보 수정
+        board.updateFromDTO(boardDTO);
+
+        boardRepository.save(board);
+    }
+
+    private void deleteFile(BoardFile file) {
+        String path = filePath + file.getUuid() + file.getFileName();
+        java.io.File deleteFile = new java.io.File(path);
+        if (deleteFile.exists()) {
+            deleteFile.delete();
+        }
+        fileRepository.delete(file);
+    }
+
+    private void uploadFile(MultipartFile file, Board board) throws IOException {
+        if (!file.isEmpty()) {
             Path uploadPath = Paths.get(filePath);
 
             // ** 만약 경로가 없다면... 경로 생성.
-            if(!Files.exists(uploadPath)) {
+            if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
 
@@ -82,10 +156,6 @@ public class BoardService {
             String formatType = originalFileName.substring(
                     originalFileName.lastIndexOf("."));
 
-            /*// ** 파일 이름만 남김
-            originalFileName = originalFileName.substring(
-                    0, originalFileName.lastIndexOf("."));*/
-
             // ** UUID 생성
             String uuid = UUID.randomUUID().toString();
 
@@ -95,12 +165,7 @@ public class BoardService {
             // 경로에 파일을 저장.
             file.transferTo(new java.io.File(path));
 
-            // 게시글 DB에 저장 후 PK를 받아옴.
-            Long id = boardRepository.save(dto.toEntity()).getId();
-
-            Board board =boardRepository.findById(id).get();
-
-            File boardFile = File.builder()
+            BoardFile boardFile = BoardFile.builder()
                     .filePath(filePath)
                     .fileName(originalFileName)
                     .uuid(uuid)
@@ -108,36 +173,8 @@ public class BoardService {
                     .fileSize(file.getSize())
                     .board(board)
                     .build();
+
+            fileRepository.save(boardFile);
         }
-    }
-
-
-    private String createFilePath(MultipartFile file) throws IOException {
-
-
-
-        return "";
-    }
-
-
-
-
-
-
-    @Transactional
-    public void delete(Long id) {
-        boardRepository.deleteById(id);
-    }
-
-    @Transactional
-    public void update(BoardDTO boardDTO) {
-        Optional<Board> boardOptional = boardRepository.findById(boardDTO.getId());
-
-        //if(boardOptional.isPresent()) ... 예외처리 생략
-        Board board = boardOptional.get();
-
-        board.updateFromDTO(boardDTO);
-
-        boardRepository.save(board);
     }
 }

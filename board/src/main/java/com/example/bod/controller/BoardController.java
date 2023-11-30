@@ -1,9 +1,12 @@
 package com.example.bod.controller;
 
 import com.example.bod.dto.BoardDTO;
+import com.example.bod.dto.FileDTO;
+import com.example.bod.entity.BoardFile;
+import com.example.bod.repository.FileRepository;
 import com.example.bod.service.BoardService;
+import com.example.bod.service.CommentService;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -14,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Controller
 @AllArgsConstructor
@@ -21,6 +25,8 @@ import java.time.LocalDateTime;
 public class BoardController {
 
     private final BoardService boardService;
+    private final FileRepository fileRepository;
+
 
     @GetMapping("/create")
     public String create(){
@@ -49,12 +55,14 @@ public class BoardController {
 
         BoardDTO boardDTO = boardService.findById(id);
         model.addAttribute("board", boardDTO);
+        List<BoardFile> byBoardID = fileRepository.findByBoardId(id);
+        model.addAttribute("files",byBoardID);
         return "update";
     }
 
     @PostMapping("/update")
-    public String update(@ModelAttribute BoardDTO boardDTO) {
-        boardService.update(boardDTO);
+    public String update(@ModelAttribute BoardDTO boardDTO,@RequestParam MultipartFile[] files) throws IOException {
+        boardService.update(boardDTO,files);
         return "redirect:/board/";
     }
 
@@ -67,6 +75,9 @@ public class BoardController {
 
         model.addAttribute("board", dto);
         model.addAttribute("page", pageable.getPageNumber());
+
+        List<BoardFile> byBoardID = fileRepository.findByBoardId(id);
+        model.addAttribute("files",byBoardID);
 
         return "Detail";
     }

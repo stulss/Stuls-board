@@ -1,30 +1,33 @@
 package com.example.bod.dto;
 
-import com.example.bod.entity.File;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import com.example.bod.entity.BoardFile;
+import lombok.*;
 
-@Data
 @ToString
+@Data
 @NoArgsConstructor
 public class FileDTO {
 
-    // 파일 경로
+    // ** 파일 경로
     private String filePath;
-    // 파일 이름
+
+    // ** 파일 이름
     private String fileName;
-    // uuid(랜덤 키)
+
+    // ** uuid (랜덤 키)
     private String uuid;
-    // 파일 포멧
+
+    // ** 파일 포멧
     private String fileType;
-    // 파일 크기
+
+    // ** 파일 크기
     private Long fileSize;
-    // 게시물 id
+
+    // ** 게시물 id
     private Long boardId;
 
-    public File toEntity(){
-        return File.builder()
+    public BoardFile toEntity() {
+        return BoardFile.builder()
                 .filePath(filePath)
                 .fileName(fileName)
                 .uuid(uuid)
@@ -33,3 +36,13 @@ public class FileDTO {
                 .build();
     }
 }
+
+
+
+
+
+
+
+
+
+

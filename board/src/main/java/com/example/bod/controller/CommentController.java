@@ -4,14 +4,10 @@ import com.example.bod.dto.CommentDTO;
 import com.example.bod.entity.Comment;
 import com.example.bod.service.CommentService;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -27,8 +23,8 @@ public class CommentController {
     public ResponseEntity save(@ModelAttribute CommentDTO commentDTO) {
 
         System.out.println(commentDTO);
-        Comment comment = commentService.save(commentDTO);
 
+        Comment comment = commentService.save(commentDTO);
         List<CommentDTO> all = commentService.findAll(commentDTO.getBoardId());
 
         if(comment != null) {
@@ -36,5 +32,11 @@ public class CommentController {
         } else {
             return new ResponseEntity<>("게시글이 없음.", HttpStatus.NOT_FOUND);
         }
+    }
+
+    @GetMapping("/list/{boardId}")
+    public ResponseEntity<List<CommentDTO>> getCommentList(@PathVariable Long boardId) {
+        List<CommentDTO> commentList = commentService.findAll(boardId);
+        return ResponseEntity.ok(commentList);
     }
 }

@@ -16,8 +16,6 @@ public class BoardDTO {
 
     private Long id;
 
-    private String username;
-
     private String title;
 
     private String contents;
@@ -29,7 +27,6 @@ public class BoardDTO {
 
     public Board toEntity(){
         return Board.builder()
-                .userName(username)
                 .title(title)
                 .contents(contents)
                 .createTime(createTime)
@@ -42,7 +39,6 @@ public class BoardDTO {
                 board.getId(),
                 board.getTitle(),
                 board.getContents(),
-                board.getUserName(),
                 board.getCreateTime(),
                 board.getUpdateTime() );
     }

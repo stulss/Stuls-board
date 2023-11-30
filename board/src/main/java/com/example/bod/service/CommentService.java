@@ -8,7 +8,6 @@ import com.example.bod.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.ui.Model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +40,7 @@ public class CommentService {
 
     public List<CommentDTO> findAll(Long boardId) {
         Board boardEntity = boardRepository.findById(boardId).get();
-        java.util.List<Comment> commentEntityList = commentRepository.findAllByBoardOrderByIdDesc(boardEntity);
+        List<Comment> commentEntityList = commentRepository.findAllByBoardOrderByIdDesc(boardEntity);
         /* EntityList -> DTOList */
         List<CommentDTO> commentDTOList = new ArrayList<>();
         for (Comment commentEntity: commentEntityList) {

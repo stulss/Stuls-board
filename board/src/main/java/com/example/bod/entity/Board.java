@@ -19,15 +19,15 @@ public class Board {
     private Long id;
 
     // ** 작성자 이름
-    @Column(length = 50)
+
     private String userName;
 
     // ** 게시물 제목
-    @Column(length = 50)
+
     private String title;
 
     // ** 내용
-    @Column(length = 50)
+
     private String contents;
 
     // ** 최초 작성 시간
@@ -46,7 +46,7 @@ public class Board {
 
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<File> files =  new ArrayList<>();
+    private List<BoardFile> files =  new ArrayList<>();
 
     @Builder
     public Board(Long id, String userName, String title, String contents, LocalDateTime createTime, LocalDateTime updateTime) {
