@@ -19,7 +19,7 @@
                 <h5>첨부 파일</h5>
                 <ul class="list-group">
                     <li class="list-group-item" th:each="file : ${files}">
-                        <a th:href="@{/download/{uuid}/{filename}(uuid=${file.uuid}, filename=${file.fileName})}"><i class="fas fa-download"></i> Download</a>
+                        <a th:href="@{/download/{uuid}/{filename}(uuid=${file.uuid}, filename=${file.fileName})}"><i class="fas fa-download"></i> [[${file.fileName}]]</a>
                     </li>
                 </ul>
             </div>
@@ -49,6 +49,8 @@
                 <th>댓글번호</th>
                 <th>작성자</th>
                 <th>내용</th>
+                <th></th>
+                <th></th>
             </tr>
             </thead>
             <tbody id="comment-table-body">
@@ -57,11 +59,50 @@
                 <td th:text="${comment.id}"></td>
                 <td th:text="${comment.writer}"></td>
                 <td th:text="${comment.contents}"></td>
+                <td class="text-right">
+                    <button onclick="openEditModal([[${comment.id}]], '[[${comment.contents}]]')" class="btn btn-warning"><i class="fas fa-edit"></i> 수정</button>
+                </td>
+                <td class="text-right">
+                    <button onclick="deleteComment([[${comment.id}]], '[[${comment.contents}]]')" class="btn btn-danger"><i class="fas fa-trash"></i> 삭제</button>
+                </td>
             </tr>
             </tbody>
         </table>
     </div>
 </div>
+
+<!-- 수정 모달 창 -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <input type="text" id="editCommentInput" class="form-control" placeholder="댓글 내용">
+        <button onclick="updateComment()" class="btn btn-primary mt-2">수정 완료</button>
+    </div>
+</div>
+
+<!-- CSS 추가 -->
+<style>
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+    }
+</style>
+
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 <script th:inline="javascript">
     $(document).ready(function() {
@@ -84,6 +125,8 @@
                     output += "<td>" + comment.id + "</td>";
                     output += "<td>" + comment.writer + "</td>";
                     output += "<td>" + comment.contents + "</td>";
+                    output += "<td class='text-right'><button onclick=\"openEditModal(" + comment.id + ", '" + comment.contents + "')\" class=\"btn btn-warning\"><i class=\"fas fa-edit\"></i> 수정</button></td>";
+                    output += "<td class='text-right'><button onclick=\"deleteComment(" + comment.id + ", '" + comment.contents + "')\" class=\"btn btn-danger\"><i class=\"fas fa-trash\"></i> 삭제</button></td>";
                     output += "</tr>";
                 }
 
@@ -111,16 +154,7 @@
             },
             success: function (res) {
                 console.log("요청성공", res);
-                let output = "<table class='table table-striped'>";
-                for (let i in res) {
-                    output += "<tr>";
-                    output += "<td>" + res[i].id + "</td>";
-                    output += "<td>" + res[i].writer + "</td>";
-                    output += "<td>" + res[i].contents + "</td>";
-                    output += "</tr>";
-                }
-                output += "</tbody></table>";
-                $("#comment-table-body").html(output);
+                getCommentList();
                 $("#writer").val('');
                 $("#contents").val('');
             },
@@ -146,6 +180,56 @@
         console.log("삭제 요청");
         const id = [[${board.id}]];
         location.href = "/board/delete/" + id;
+    }
+
+    const openEditModal = (commentId, commentContents) => {
+        const modal = document.getElementById("editModal");
+        const editCommentInput = document.getElementById("editCommentInput");
+        editCommentInput.value = commentContents;
+        modal.setAttribute("data-comment-id", commentId);  // commentId 값을 저장
+        modal.style.display = "block";
+        $(".close").click(function() {
+            modal.style.display = "none";
+        });
+    }
+
+    const updateComment = () => {
+        const modal = document.getElementById("editModal");
+        const commentId = modal.getAttribute("data-comment-id");  // 저장된 commentId 값을 가져옴
+        const editedComment = document.getElementById("editCommentInput").value;
+        $.ajax({
+            type: "POST",
+            url: "/comment/update/" + commentId,
+            data: {
+                "contents": editedComment
+            },
+            success: function (res) {
+                console.log("댓글 수정 성공", res);
+                getCommentList();
+                modal.style.display = "none";
+            },
+            error: function (err) {
+                console.log("댓글 수정 실패", err);
+            }
+        });
+    }
+
+    const deleteComment = (commentId, commentContents) => {
+        const confirmDelete = confirm("댓글을 삭제하시겠습니까?" +
+            "댓글 내용: " + commentContents);
+        if (confirmDelete) {
+            $.ajax({
+                type: "DELETE",
+                url: "/comment/delete/" + commentId,
+                success: function (res) {
+                    console.log("댓글 삭제 성공", res);
+                    getCommentList();
+                },
+                error: function (err) {
+                    console.log("댓글 삭제 실패", err);
+                }
+            });
+        }
     }
 </script>
 </body>

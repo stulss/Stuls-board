@@ -32,4 +32,13 @@ public class CommentDTO {
         commentDTO.setBoardId(boardId);
         return commentDTO;
     }
+
+    public static CommentDTO fromComment(Comment comment) {
+        return new CommentDTO(
+                comment.getId(),
+                comment.getWriter(),
+                comment.getContents(),
+                comment.getBoard().getId()
+        );
+    }
 }

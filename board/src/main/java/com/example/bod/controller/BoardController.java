@@ -61,8 +61,8 @@ public class BoardController {
     }
 
     @PostMapping("/update")
-    public String update(@ModelAttribute BoardDTO boardDTO,@RequestParam MultipartFile[] files) throws IOException {
-        boardService.update(boardDTO,files);
+    public String update(@ModelAttribute BoardDTO boardDTO, @RequestParam(value = "files", required = false) MultipartFile[] files) throws IOException {
+        boardService.update(boardDTO, files);
         return "redirect:/board/";
     }
 
@@ -93,9 +93,12 @@ public class BoardController {
     }
 
     @GetMapping("/delete/{id}")
-    public String delete(@PathVariable Long id) {
+    public String delete(@PathVariable Long id,
+                         @RequestParam BoardFile files) {
         System.out.println(id);
-        boardService.delete(id);
+        boardService.delete(id,files);
         return "redirect:/board/paging";
     }
+
+
 }

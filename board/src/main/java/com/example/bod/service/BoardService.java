@@ -31,7 +31,7 @@ public class BoardService {
 
     // ** 학원에서는 /G/
     // ** 집에서는 본인 PC 이름.
-    private final String filePath = "C:/Users/G/Desktop/green/Board Files/";
+    private final String filePath = "C:/Users/stuls/Desktop/developer stuls/green/boardfile/";
 
 
     // ** paging 을 함수
@@ -103,10 +103,15 @@ public class BoardService {
     }
 
     @Transactional
-    public void delete(Long id) {
+    public void delete(Long id,BoardFile boardFile) {
         boardRepository.deleteById(id);
+        Optional<Board> boardOptional = boardRepository.findById(id);
+        Board board = boardOptional.get();
+        List<BoardFile> existingFiles = fileRepository.findByBoardId(board.getId());
+        for (BoardFile existingFile : existingFiles) {
+            deleteFile(existingFile);
+        }
     }
-
     @Transactional
     public void update(BoardDTO boardDTO, MultipartFile[] files) throws IOException {
         Optional<Board> boardOptional = boardRepository.findById(boardDTO.getId());
@@ -114,24 +119,42 @@ public class BoardService {
         //if(boardOptional.isPresent()) ... 예외처리 생략
         Board board = boardOptional.get();
 
-        // 파일 삭제
+        // 해당 게시물과 관련된 기존 파일 가져오기
         List<BoardFile> existingFiles = fileRepository.findByBoardId(board.getId());
-        for (BoardFile existingFile : existingFiles) {
-            deleteFile(existingFile);
+
+        // 새 파일이 제공되는 경우
+        if (files != null && files.length > 0) {
+            // 기존 파일 삭제
+            for (BoardFile existingFile : existingFiles) {
+                deleteFile(existingFile);
+            }
+
+            // 새 파일 저장
+            for (MultipartFile file : files) {
+                uploadFile(file, board);
+            }
+        } else {
+            // 새 파일이 없는 경우 기존 파일 유지
+            for (BoardFile existingFile : existingFiles) {
+                // 기존 파일 정보를 DTO를 사용하여 업데이트
+                FileDTO fileDTO = new FileDTO(); // BoardFile을 다루는 DTO 생성
+                fileDTO.setBoardId(board.getId());
+                fileDTO.setFileName(existingFile.getFileName());
+                // 필요한 다른 정보들을 DTO에 설정
+
+                // DTO를 이용하여 파일 정보 업데이트
+                // fileDTO를 이용하여 fileRepository에서 엔티티를 가져와 업데이트
+                // fileRepository.save(fileDTO.toEntity()); 와 같은 방식으로 엔티티를 업데이트할 수 있습니다.
+            }
         }
 
-        // 파일 저장
-        for (MultipartFile file : files) {
-            uploadFile(file, board);
-        }
-
-        // 게시물 정보 수정
+        // 다른 게시물 정보 업데이트
         board.updateFromDTO(boardDTO);
-
         boardRepository.save(board);
     }
 
-    private void deleteFile(BoardFile file) {
+    @Transactional
+    public void deleteFile(BoardFile file) {
         String path = filePath + file.getUuid() + file.getFileName();
         java.io.File deleteFile = new java.io.File(path);
         if (deleteFile.exists()) {

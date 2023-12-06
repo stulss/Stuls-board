@@ -49,4 +49,26 @@ public class CommentService {
         }
         return commentDTOList;
     }
+
+    @Transactional
+    public void update(CommentDTO commentDTO) {
+        Optional<Comment> comment = commentRepository.findById(commentDTO.getId());
+        if (comment.isPresent()) {
+            Comment comment1 = comment.get();
+            comment1.toUpdate(commentDTO.toEntity().getBoard());
+            commentRepository.save(comment1);
+        }
+    }
+
+    public CommentDTO findById(Long id) {
+        Comment comment = commentRepository.findById(id).orElse(null);
+        if (comment != null) {
+            return CommentDTO.fromComment(comment);
+        }
+        return null;
+    }
+
+    public void deletComment(Long id) {
+        commentRepository.deleteById(id);
+    }
 }
