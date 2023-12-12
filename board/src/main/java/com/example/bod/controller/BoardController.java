@@ -97,7 +97,7 @@ public class BoardController {
                          @RequestParam BoardFile files) {
         System.out.println(id);
         boardService.delete(id,files);
-        return "redirect:/board/paging";
+        return "redirect:/board/";
     }
 
 

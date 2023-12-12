@@ -31,7 +31,7 @@ public class CommentService {
             Board board = optionalBoard.get();
 
             Comment entity = commentDTO.toEntity();
-            entity.toUpdate(board);
+            entity.tosave(board);
             return commentRepository.save(entity);
         } else {
             return null;
@@ -52,23 +52,21 @@ public class CommentService {
 
     @Transactional
     public void update(CommentDTO commentDTO) {
-        Optional<Comment> comment = commentRepository.findById(commentDTO.getId());
-        if (comment.isPresent()) {
-            Comment comment1 = comment.get();
-            comment1.toUpdate(commentDTO.toEntity().getBoard());
-            commentRepository.save(comment1);
-        }
+        Optional<Comment> commentOptional = commentRepository.findById(commentDTO.getId());
+
+        Comment comment = commentOptional.get();
+
+        comment.updateFromDTO(commentDTO);
+
+        commentRepository.save(comment);
     }
 
-    public CommentDTO findById(Long id) {
-        Comment comment = commentRepository.findById(id).orElse(null);
-        if (comment != null) {
-            return CommentDTO.fromComment(comment);
-        }
-        return null;
+    public Optional<Comment> findById(Long id) {
+        return commentRepository.findById(id);
     }
 
-    public void deletComment(Long id) {
+    @Transactional
+    public void delete(Long id){
         commentRepository.deleteById(id);
     }
 }
