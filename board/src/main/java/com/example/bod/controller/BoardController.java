@@ -97,28 +97,21 @@ public class BoardController {
     }
 
     @GetMapping("/delete/{id}")
-    public String delete(@PathVariable Long id,
-                         @RequestParam BoardFile files) {
+    public String delete(@PathVariable Long id) {
         System.out.println(id);
-        boardService.delete(id,files);
-        return "redirect:/board/";
+        boardService.delete(id);
+        return "redirect:/board/paging";
     }
 
     @PostMapping("/deleteFile/{fileId}")
-    public ResponseEntity<?> deleteFile(@PathVariable Long fileId) {
-        try {
-            // BoardFile 객체를 얻어옵니다.
-            Optional<BoardFile> fileOptional = fileService.findById(fileId);
+    public void deleteFile(@PathVariable Long fileId) {
 
-            if (fileOptional.isPresent()) {
-                BoardFile file = fileOptional.get();
-                boardService.deleteFile(file);
-                return ResponseEntity.ok("파일이 성공적으로 삭제되었습니다.");
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("파일을 찾을 수 없습니다.");
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("파일 삭제 중 오류가 발생했습니다.");
+        // BoardFile 객체를 얻어옵니다.
+        Optional<BoardFile> fileOptional = fileService.findById(fileId);
+
+        if (fileOptional.isPresent()) {
+            BoardFile file = fileOptional.get();
+            boardService.deleteFile(file);
         }
     }
 

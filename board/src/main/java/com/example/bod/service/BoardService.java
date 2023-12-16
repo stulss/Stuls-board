@@ -103,13 +103,15 @@ public class BoardService {
     }
 
     @Transactional
-    public void delete(Long id,BoardFile boardFile) {
-        boardRepository.deleteById(id);
+    public void delete(Long id) {
         Optional<Board> boardOptional = boardRepository.findById(id);
-        Board board = boardOptional.get();
-        List<BoardFile> existingFiles = fileRepository.findByBoardId(board.getId());
-        for (BoardFile existingFile : existingFiles) {
-            deleteFile(existingFile);
+        if (boardOptional.isPresent()) {
+            Board board = boardOptional.get();
+            List<BoardFile> existingFiles = fileRepository.findByBoardId(board.getId());
+            for (BoardFile existingFile : existingFiles) {
+                deleteFile(existingFile);
+            }
+            boardRepository.deleteById(id);
         }
     }
     @Transactional
@@ -155,12 +157,13 @@ public class BoardService {
         String path = filePath + file.getUuid() + file.getFileName();
         java.io.File deleteFile = new java.io.File(path);
         if (deleteFile.exists()) {
-            deleteFile.delete();
+            if (deleteFile.delete()) {
+                fileRepository.delete(file);
+            }
         }
-        fileRepository.delete(file);
     }
-
-    private void uploadFile(MultipartFile file, Board board) throws IOException {
+    @Transactional
+    public void uploadFile(MultipartFile file, Board board) throws IOException {
         if (!file.isEmpty()) {
             Path uploadPath = Paths.get(filePath);
 
