@@ -1,77 +1,194 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Detail</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"/>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.6.3.min.js" crossorigin="anonymous"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        header {
+            background-color: #007bff;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table th, table td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+
+        table th {
+            background-color: #f5f5f5;
+        }
+
+        .comment-section {
+            border-top: 1px solid #ccc;
+            margin-top: 20px;
+            padding-top: 20px;
+        }
+
+        .comment {
+            margin-bottom: 15px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fff;
+        }
+
+        .comment-info {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .comment-content {
+            font-size: 16px;
+        }
+
+        .comment-actions {
+            margin-top: 10px;
+        }
+
+        .comment-actions button {
+            margin-right: 10px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .comment-actions button:hover {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        input[type="text"] {
+            padding: 8px;
+            margin-bottom: 10px;
+            width: calc(100% - 16px);
+            border-radius: 3px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: #fff;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-<div class="container mt-5">
-    <div class="card">
-        <div class="card-body">
-            <h5 class="card-title" th:text="${board.getTitle}"></h5>
-            <h6 class="card-subtitle mb-2 text-muted" th:text="${board.getCreateTime}"></h6>
-            <p class="card-text" th:text="${board.getContents}"></p>
+<table>
+    <tr>
+        <th>id</th>
+        <td th:text="${board.id}"></td>
+    </tr>
+    <tr>
+        <th>title</th>
+        <td th:text="${board.getTitle}"></td>
+    </tr>
+    <!--tr>
+        <th>writer</th>
+        <td th:text="${board.getWriter}"></td>
+    </tr-->
+    <tr>
+        <th>date</th>
+        <td th:text="${board.getCreateTime}"></td>
+    </tr>
+    <tr>
+        <th>contents</th>
+        <td th:text="${board.getContents}"></td>
+    </tr>
+</table>
 
-            <div th:if="${files != null}">
-                <h5>첨부 파일</h5>
-                <ul class="list-group">
-                    <li class="list-group-item" th:each="file : ${files}">
-                        <a th:href="@{/download/{uuid}/{filename}(uuid=${file.uuid}, filename=${file.fileName})}"><i class="fas fa-download"></i> [[${file.fileName}]]</a>
-                    </li>
-                </ul>
-            </div>
-
-            <button onclick="listReq()" class="btn btn-primary mt-2"><i class="fas fa-list"></i> 목록</button>
-            <button onclick="updateReq()" class="btn btn-warning mt-2"><i class="fas fa-edit"></i> 수정</button>
-            <button onclick="deleteReq()" class="btn btn-danger mt-2"><i class="fas fa-trash"></i> 삭제</button>
-        </div>
-    </div>
-
-    <!-- 댓글 작성 부분 -->
-    <div id="comment-write">
-        <input type="text" id="writer" placeholder="작성자">
-        <input type="text" id="contents" placeholder="내용">
-        <button class="btn btn-primary" id="comment-write-btn" onclick="commentWrite()">댓글작성</button>
-    </div>
-    <div id="update-form" style="display: none;">
-        <h3>댓글 수정</h3>
-        <input type="hidden" id="update-comment-id">
-        <input type="text" id="update-comment-writer" placeholder="작성자">
-        <input type="text" id="update-comment-contents" placeholder="내용">
-        <button class="btn btn-primary" onclick="updateComment()">수정 완료</button>
-    </div>
-
-    <!-- 댓글 출력 부분 -->
-    <div id="comment-list">
-        <table>
-            <tr>
-                <th>댓글번호</th>
-                <th>작성자</th>
-                <th>내용</th>
-                <th>동작</th> <!-- 수정 버튼과 삭제 버튼을 포함한 새로운 열 추가 -->
-            </tr>
-            <tr th:each="comment: ${commentList}">
-                <td th:text="${comment.id}"></td>
-                <td th:text="${comment.writer}"></td>
-                <td th:text="${comment.contents}"></td>
-                <td>
-                    <button class="btn btn-primary" onclick="showUpdateForm(${comment.id}, '${comment.writer}', '${comment.contents}')">수정</button>
-                    <button class="btn btn-danger" onclick="commentDelete(${comment.id})">삭제</button>
-                </td>
-            </tr>
-        </table>
-    </div>
+<div th:if="${files != null}">
+    <h3>첨부 파일</h3>
+    <ul>
+        <li th:each="file : ${files}">첨부파일=
+            <!-- 다운로드 링크 추가 -->
+            <a th:href="@{/download/{uuid}/{filename}(uuid=${file.uuid}, filename=${file.fileName})}">[[${file.fileName}]]</a>
+        </li>
+    </ul>
 </div>
-</body>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-<script th:inline="javascript">
-    $(document).ready(function() {
-        loadComments();
-    });
 
+
+<button onclick="listReq()">목록</button>
+<button onclick="updateReq()">수정</button>
+<button onclick="deleteReq()">삭제</button>
+
+
+<!-- 댓글 작성 부분 -->
+<div id="comment-write">
+    <label for="writer"></label><input type="text" id="writer" placeholder="작성자">
+    <label for="contents"></label><input type="text" id="contents" placeholder="내용">
+    <button id="comment-write-btn" onclick="commentWrite()">댓글작성</button>
+</div>
+<div id="update-form" style="display: none;">
+    <h3>댓글 수정</h3>
+    <input type="hidden" id="update-comment-id">
+    <label for="update-comment-writer"></label><input type="text" id="update-comment-writer" placeholder="작성자">
+    <label for="update-comment-contents"></label><input type="text" id="update-comment-contents" placeholder="내용">
+    <button class="btn btn-primary" onclick="updateComment()">수정 완료</button>
+</div>
+
+<!-- 댓글 출력 부분 -->
+<div id="comment-list">
+    <table>
+        <tr>
+            <th>댓글번호</th>
+            <th>작성자</th>
+            <th>내용</th>
+            <th>동작</th>
+        </tr>
+        <tr th:each="comment: ${commentList}">
+            <td th:text="${comment.id}"></td>
+            <td th:text="${comment.writer}"></td>
+            <td th:text="${comment.contents}"></td>
+            <td>
+                <button class="btn btn-primary" onclick="showUpdateForm('${comment.id}', '${comment.writer}', '${comment.contents}')">수정</button>
+                <button class="btn btn-danger" onclick="commentDelete(${comment.id})">삭제</button>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+<script th:inline="javascript">
+    window.onload = function() {
+        loadComments();
+    };
     const loadComments = () => {
         const jsId = [[${board.id}]];
         $.ajax({
@@ -102,15 +219,14 @@
             }
         });
     };
-
     const commentWrite = () => {
         const jsWriter = document.getElementById("writer").value;
         const jsContents = document.getElementById("contents").value;
         console.log("작성자: ", jsWriter);
         console.log("내용: ", jsContents);
         const jsId = [[${board.id}]];
-
         $.ajax({
+            // 요청방식: post, 요청주소: /comment/save, 요청데이터: 작성자, 작성내용, 게시글번호
             type: "post",
             url: "/comment/save",
             data: {
@@ -129,15 +245,13 @@
                     output += "<td>" + res[i].id + "</td>";
                     output += "<td>" + res[i].writer + "</td>";
                     output += "<td>" + res[i].contents + "</td>";
+                    output += "<td><button onclick='showUpdateForm(" + res[i].id + ", \"" + res[i].writer + "\", \"" + res[i].contents + "\")'>수정</button></td>";
                     output += "<td><button onclick='commentDelete(" + res[i].id + ")'>삭제</button></td>";
                     output += "</tr>";
-
-                    loadComments();
-                    document.getElementById('writer').value = '';
-                    document.getElementById('contents').value = '';
                 }
 
                 output += "</table>";
+                // 사용자가 댓글을 작성을 마치면 입력 필드를 비워서 다음 댓글을 작성할 때 기존에 입력된 텍스트를 비움.
                 document.getElementById('comment-list').innerHTML = output;
                 document.getElementById('writer').value = '';
                 document.getElementById('contents').value = '';
@@ -148,7 +262,22 @@
         });
     }
 
-    // 댓글 수정 함수
+    const listReq = () => {
+        console.log("목록 요청");
+        const page = [[${page}]];
+        location.href = "/board/paging?page="+page;
+    }
+    const updateReq = () => {
+        console.log("수정 요청");
+        const id = [[${board.id}]];
+        location.href = "/board/update/" + id;
+    }
+    const deleteReq = () => {
+        console.log("삭제 요청");
+        const id = [[${board.id}]];
+        location.href = "/board/delete/" + id;
+    }
+
     const showUpdateForm = (id, writer, contents) => {
         document.getElementById('update-comment-id').value = id;
         document.getElementById('update-comment-writer').value = writer;
@@ -179,22 +308,6 @@
         });
     };
 
-    const listReq = () => {
-        console.log("목록 요청");
-        const page = [[${page}]];
-        location.href = "/board/paging?page="+page;
-    }
-    const updateReq = () => {
-        console.log("수정 요청");
-        const id = [[${board.id}]];
-        location.href = "/board/update/" + id;
-    }
-    const deleteReq = () => {
-        console.log("삭제 요청");
-        const id = [[${board.id}]];
-        location.href = "/board/delete/" + id;
-    }
-
     const commentDelete = (id) => {
         $.ajax({
             type: "POST",
@@ -210,4 +323,5 @@
         });
     };
 </script>
+</body>
 </html>

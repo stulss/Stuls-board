@@ -23,7 +23,11 @@
                     <label for="content">Content:</label>
                     <textarea class="form-control" id="content" name="contents" rows="5" required>[[${board.contents}]]</textarea>
                 </div>
-                <div th:if="${files != null}">
+                <div class="form-group">
+                    <label for="files">Files:</label>
+                    <input type="file" class="form-control-file" id="files" name="files" multiple>
+                </div>
+                <div th:if="${files}">
                     <h5>Attached Files</h5>
                     <ul class="list-group">
                         <li class="list-group-item" th:each="file : ${files}" th:id="'file-' + ${file.id}">
@@ -50,13 +54,13 @@
 <script th:inline="javascript">
     // 파일 삭제 함수
     function deleteFile(fileId) {
-        if (confirm("Do you want to delete this file?")) {
+        if (confirm("이 파일을 삭제하시겠습니까?")) {
             $.ajax({
                 type: "POST",
                 url: "/board/deleteFile/" + fileId,
                 success: function(response) {
-                    // Remove the list item upon successful file deletion
-                    $("#file-" + fileId).remove();
+                    // 파일 삭제 후 화면에서 해당 파일을 부드럽게 사라지게 함
+                    $("#file-" + fileId).fadeOut();
                 },
                 error: function(error) {
                     console.log("Failed to delete the file", error);
@@ -67,15 +71,22 @@
 
     // 업데이트 버튼 클릭 시 기존 첨부 파일을 유지
     function updatePost() {
-        const existingFiles = $("li.list-group-item");
-        // 각 파일 목록에 대해 파일 ID를 가져와서 숨겨진 입력란에 추가
-        existingFiles.each(function() {
-            const fileId = $(this).attr("id").split("-")[1];
-            const input = "<input type='hidden' name='existingFiles' value='" + fileId + "'>";
-            $("#updateForm").append(input);
-        });
-        // 폼 제출
-        $("#updateForm").submit(); // 이 부분이 추가되었습니다.
+        const newFiles = $("input[name='files']")[0].files;
+        // 새 파일이 첨부되지 않았는지 확인
+        if (newFiles.length === 0) {
+            // 폼 제출을 막고 기존 파일 유지
+            event.preventDefault();
+            alert('새 파일이 첨부되지 않았습니다. 기존 파일이 유지됩니다.');
+        } else {
+            // 기존 파일은 유지하고 폼 제출 처리
+            const existingFiles = $("li.list-group-item");
+            existingFiles.each(function() {
+                const fileId = $(this).attr("id").split("-")[1];
+                const input = "<input type='hidden' name='existingFiles' value='" + fileId + "'>";
+                $("#updateForm").append(input);
+            });
+            $("#updateForm").submit();
+        }
     }
 </script>
 </body>

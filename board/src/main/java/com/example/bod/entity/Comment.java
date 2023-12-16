@@ -2,7 +2,9 @@ package com.example.bod.entity;
 
 
 import com.example.bod.dto.CommentDTO;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
@@ -34,7 +36,7 @@ public class Comment {
         this.board = board;
     }
 
-    public Comment tosave(Board board) {
+    public Comment toUpdate(Board board) {
         Comment comment = new Comment();
         this.board = board;
         return comment;

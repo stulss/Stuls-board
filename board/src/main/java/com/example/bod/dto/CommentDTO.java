@@ -1,9 +1,12 @@
 package com.example.bod.dto;
 
+
+import com.example.bod.entity.Board;
 import com.example.bod.entity.Comment;
 import lombok.*;
 
-@Data
+@Setter
+@Getter
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
@@ -31,14 +34,5 @@ public class CommentDTO {
         commentDTO.setContents(comment.getContents());
         commentDTO.setBoardId(boardId);
         return commentDTO;
-    }
-
-    public static CommentDTO fromComment(Comment comment) {
-        return new CommentDTO(
-                comment.getId(),
-                comment.getWriter(),
-                comment.getContents(),
-                comment.getBoard().getId()
-        );
     }
 }

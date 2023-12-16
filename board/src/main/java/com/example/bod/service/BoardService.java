@@ -31,7 +31,7 @@ public class BoardService {
 
     // ** 학원에서는 /G/
     // ** 집에서는 본인 PC 이름.
-    private final String filePath = "C:/Users/stuls/Desktop/developer stuls/green/boardfile/";
+    private final String filePath = "C:/Users/stuls/Desktop/board/src/main/resources/static/image/";
 
 
     // ** paging 을 함수
@@ -125,9 +125,6 @@ public class BoardService {
         // 새 파일이 제공되는 경우
         if (files != null && files.length > 0) {
             // 기존 파일 삭제
-            for (BoardFile existingFile : existingFiles) {
-                deleteFile(existingFile);
-            }
 
             // 새 파일 저장
             for (MultipartFile file : files) {

@@ -8,6 +8,7 @@ import com.example.bod.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +32,7 @@ public class CommentService {
             Board board = optionalBoard.get();
 
             Comment entity = commentDTO.toEntity();
-            entity.tosave(board);
+            entity.toUpdate(board);
             return commentRepository.save(entity);
         } else {
             return null;
@@ -40,7 +41,7 @@ public class CommentService {
 
     public List<CommentDTO> findAll(Long boardId) {
         Board boardEntity = boardRepository.findById(boardId).get();
-        List<Comment> commentEntityList = commentRepository.findAllByBoardOrderByIdDesc(boardEntity);
+        java.util.List<Comment> commentEntityList = commentRepository.findAllByBoardOrderByIdDesc(boardEntity);
         /* EntityList -> DTOList */
         List<CommentDTO> commentDTOList = new ArrayList<>();
         for (Comment commentEntity: commentEntityList) {
@@ -54,19 +55,27 @@ public class CommentService {
     public void update(CommentDTO commentDTO) {
         Optional<Comment> commentOptional = commentRepository.findById(commentDTO.getId());
 
+        if(commentOptional.isPresent()){
         Comment comment = commentOptional.get();
 
         comment.updateFromDTO(commentDTO);
 
         commentRepository.save(comment);
-    }
+        }else{
+            throw new IllegalArgumentException("해당 댓글을 찾을 수 없습니다."+commentDTO.getId());
+        }
 
-    public Optional<Comment> findById(Long id) {
-        return commentRepository.findById(id);
     }
 
     @Transactional
-    public void delete(Long id){
-        commentRepository.deleteById(id);
+    public Comment delete(Long id) {
+        Optional<Comment> optionalComment = commentRepository.findById(id);
+
+        if(optionalComment.isPresent()) {
+            commentRepository.deleteById(id);
+        } else {
+            throw new IllegalArgumentException("해당 댓글이 존재하지 않습니다. id=" + id);
+        }
+        return null;
     }
 }

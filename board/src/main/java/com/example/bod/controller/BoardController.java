@@ -6,10 +6,13 @@ import com.example.bod.entity.BoardFile;
 import com.example.bod.repository.FileRepository;
 import com.example.bod.service.BoardService;
 import com.example.bod.service.CommentService;
+import com.example.bod.service.FileService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @AllArgsConstructor
@@ -25,7 +29,7 @@ import java.util.List;
 public class BoardController {
 
     private final BoardService boardService;
-    private final FileRepository fileRepository;
+    private final FileService fileService;
 
 
     @GetMapping("/create")
@@ -55,7 +59,7 @@ public class BoardController {
 
         BoardDTO boardDTO = boardService.findById(id);
         model.addAttribute("board", boardDTO);
-        List<BoardFile> byBoardID = fileRepository.findByBoardId(id);
+        List<BoardFile> byBoardID = fileService.findByBoardId(id);
         model.addAttribute("files",byBoardID);
         return "update";
     }
@@ -76,7 +80,7 @@ public class BoardController {
         model.addAttribute("board", dto);
         model.addAttribute("page", pageable.getPageNumber());
 
-        List<BoardFile> byBoardID = fileRepository.findByBoardId(id);
+        List<BoardFile> byBoardID = fileService.findByBoardId(id);
         model.addAttribute("files",byBoardID);
 
         return "Detail";
@@ -100,5 +104,22 @@ public class BoardController {
         return "redirect:/board/";
     }
 
+    @PostMapping("/deleteFile/{fileId}")
+    public ResponseEntity<?> deleteFile(@PathVariable Long fileId) {
+        try {
+            // BoardFile 객체를 얻어옵니다.
+            Optional<BoardFile> fileOptional = fileService.findById(fileId);
+
+            if (fileOptional.isPresent()) {
+                BoardFile file = fileOptional.get();
+                boardService.deleteFile(file);
+                return ResponseEntity.ok("파일이 성공적으로 삭제되었습니다.");
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("파일을 찾을 수 없습니다.");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("파일 삭제 중 오류가 발생했습니다.");
+        }
+    }
 
 }
