@@ -51,19 +51,19 @@
 ---
 |링크|기능| |
 |:--:|:--:|:--:|
-|/board/create|게시글 작성페이지|board|
-|/board/save|게시글 저장|board|
-|/board/delete/{id}|게시글 삭제|board|
-|/board/paging/|게시글 목록|board|
-|/board/{id}|게시글 조회|board|
-|/board/update/{id}|게시글 수정페이지|board|
-|/board/update|게시글 수정|board|
-|/board/deleteFile/{fileId}|첨부파일 삭제|board|
-|/comment/save|댓글저장|comment|
-|/comment/list/{boardId}|댓글목록|comment|
-|/comment/update|댓글수정|comment|
-|/comment/delete/{Id}|댓글삭제|comment|
-|/download/{uuid}/{fileName}|파일 다운로드|boardFile|
+|/board/create|게시글 작성페이지|Get|
+|/board/save|게시글 저장|Post|
+|/board/delete/{id}|게시글 삭제|Post|
+|/board/paging/|게시글 목록|Get|
+|/board/{id}|게시글 조회|Get|
+|/board/update/{id}|게시글 수정페이지|Get|
+|/board/update|게시글 수정|Post|
+|/board/deleteFile/{fileId}|첨부파일 삭제|Post|
+|/comment/save|댓글저장|Post|
+|/comment/list/{boardId}|댓글목록|Get|
+|/comment/update|댓글수정|Post|
+|/comment/delete/{Id}|댓글삭제|Post|
+|/download/{uuid}/{fileName}|파일 다운로드|Post|
 
 <br>
 ## 추후 업데이트 예정
